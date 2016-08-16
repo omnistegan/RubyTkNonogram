@@ -2,7 +2,7 @@
 require 'tk'
 require './parse_puzzle.rb'
 
-puzzle = parse_puzzle('webpbn007040.xml')
+puzzle = parse_puzzle('webpbn000915.xml')
 
 class Block
 	attr_reader(:coords, :colour, :active)
@@ -95,8 +95,8 @@ def draw_clues(puzzle, left_edge, top_edge, scale)
 end
 
 def main(puzzle)
-	width = puzzle["rows"].length
-	height = puzzle["columns"].length
+	width = puzzle["columns"].length
+	height = puzzle["rows"].length
 	scale = 20
 	widthpx = width*scale
 	heightpx = height*scale
