@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!DOCTYPE pbn SYSTEM "http://webpbn.com/pbn-0.3.dtd">
+<puzzleset>
+<source>webpbn.com</source>
+
+<puzzle type="grid" defaultcolor="black">
+<title>A small big puzzle</title>
+<author>Marie-Louise Ambrey</author>
+<authorid>marz71</authorid>
+<copyright>(c) Copyright 2011 by Marie-Louise Ambrey</copyright>
+<id>#15776 (v.1)</id>
+<description>An elephant. </description>
+<note>published,definitely unique,may require moderate lookahead</note>
+
+<color name="white" char=".">FFFFFF</color>
+<color name="black" char="X">000000</color>
+
+<clues type="columns">
+<line><count>8</count></line>
+<line><count>2</count><count>1</count></line>
+<line><count>1</count><count>3</count><count>9</count></line>
+<line><count>1</count><count>6</count><count>5</count><count>1</count></line>
+<line><count>1</count><count>4</count><count>2</count><count>2</count></line>
+<line><count>1</count><count>2</count><count>1</count></line>
+<line><count>1</count><count>2</count><count>2</count></line>
+<line><count>1</count><count>1</count><count>1</count><count>1</count><count>1</count></line>
+<line><count>1</count><count>4</count><count>4</count></line>
+<line><count>1</count><count>2</count><count>1</count></line>
+<line><count>1</count><count>1</count><count>2</count><count>4</count></line>
+<line><count>1</count><count>2</count><count>1</count><count>1</count></line>
+<line><count>1</count><count>1</count><count>2</count><count>1</count><count>1</count><count>2</count></line>
+<line><count>1</count><count>9</count><count>1</count><count>1</count></line>
+<line><count>1</count><count>3</count><count>2</count><count>1</count><count>2</count></line>
+<line><count>2</count><count>2</count><count>4</count><count>1</count></line>
+<line><count>7</count><count>9</count></line>
+<line><count>1</count><count>2</count></line>
+<line><count>2</count><count>2</count></line>
+<line><count>3</count></line>
+</clues>
+
+<clues type="rows">
+<line><count>3</count><count>5</count><count>3</count></line>
+<line><count>1</count><count>1</count><count>1</count><count>1</count></line>
+<line><count>2</count><count>1</count><count>2</count><count>2</count></line>
+<line><count>1</count><count>2</count><count>1</count><count>1</count></line>
+<line><count>1</count><count>3</count><count>1</count><count>1</count><count>2</count><count>1</count></line>
+<line><count>1</count><count>3</count><count>2</count><count>1</count></line>
+<line><count>1</count><count>4</count><count>3</count><count>3</count></line>
+<line><count>1</count><count>1</count><count>3</count><count>3</count><count>1</count><count>2</count></line>
+<line><count>1</count><count>1</count><count>1</count><count>1</count><count>1</count><count>2</count><count>1</count></line>
+<line><count>1</count><count>2</count><count>4</count><count>2</count></line>
+<line><count>1</count><count>1</count><count>1</count><count>2</count><count>2</count></line>
+<line><count>3</count><count>2</count><count>2</count></line>
+<line><count>2</count><count>2</count><count>2</count></line>
+<line><count>2</count><count>7</count></line>
+<line><count>2</count><count>2</count></line>
+<line><count>2</count><count>2</count></line>
+<line><count>1</count><count>3</count><count>1</count></line>
+<line><count>1</count><count>1</count><count>1</count><count>1</count></line>
+<line><count>1</count><count>1</count><count>1</count><count>1</count><count>1</count><count>1</count><count>1</count><count>1</count></line>
+<line><count>7</count><count>7</count></line>
+</clues>
+
+</puzzle>
+</puzzleset>
+
