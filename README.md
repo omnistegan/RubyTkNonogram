@@ -7,3 +7,5 @@ Uses xml format puzzle like the ones you can get from
 http://webpbn.com/export.cgi
 
 Currently only supports black and white puzzles.
+
+Now has Vim keybinds, C to mark, X to mark X
