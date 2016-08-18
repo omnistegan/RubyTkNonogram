@@ -1,4 +1,4 @@
-#!/bin/env ruby-2.1
+#!/bin/env ruby
 require 'tk'
 require './parse_puzzle.rb'
 
@@ -316,7 +316,7 @@ end
 # A main funtion for getting things going
 def main(puzzle)
 
-  puzzle = parse_puzzle(puzzle)
+  puzzle = parse_puzzle(puzzle) unless !puzzle
   scale = 20
 
   # Check to see if we were passed a valid puzzle

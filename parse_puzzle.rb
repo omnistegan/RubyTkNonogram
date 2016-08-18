@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby-2.1
+#!/usr/bin/env ruby
 require 'xmlsimple'
 
 def parse_puzzle(xml)
