@@ -37,6 +37,7 @@ class Board
     @width = puzzle[:columns].length
     @height = puzzle[:rows].length
     @clues = puzzle.reject { |key,_| ![:rows, :columns].include? key }
+    @passing = passing_init
     @colors = [:white, :black]
     # Init the blocks
     @blocks = blocks_init()
@@ -52,6 +53,89 @@ class Board
     blocks[0].selected = true
     blocks
   end
+
+  def passing_init
+    passing = {}
+    @clues.each do |direction, lines|
+      passing[direction] = []
+      lines.each do |line|
+        new_line = []
+        line.each do |clue|
+          new_line << false
+        end
+        passing[direction] << new_line
+      end
+    end
+  end
+
+  def read_line(number, direction)
+    score = []
+    if direction == :rows
+      line = @blocks.select { |b| b.coords[:y] == number }.map { |b| b = b.color }
+    else
+      line = @blocks.select { |b| b.coords[:x] == number }.map { |b| b = b.color }
+    end
+    counter = 0
+    line.each_with_index do |cell, i|
+      # Start a counter
+      if cell == :black && (i == 0 || line[i-1] == :white)
+        counter = 0
+      end
+      # Add to the counter if :black
+      if cell == :black
+        counter += 1
+      end
+      if cell == :black && (i == line.length-1 || line[i+1] == :white)
+        score << counter
+      end
+    end
+    score
+  end
+
+  def test_line(x, y)
+    row = read_line(y, :rows)
+    if row == @clues[:rows][y]
+      puts "#{y+1} row passes"
+    else
+      forward_row = row.zip(@clues[:rows][y])
+      forward_pass = 0
+      reverse_pass = 0
+      forward_row.each_with_index do |test, i|
+        if test[0] == test[1]
+          forward_pass += 1
+        end
+      end
+      backward_row = row.reverse.zip(@clues[:rows][y].reverse)
+      backward_row.each_with_index do |test, i|
+        if test[0] == test[1]
+          reverse_pass += 1
+        end
+      end
+      puts "Row: --> : #{forward_pass}, <-- #{reverse_pass}"
+    end
+
+    column = read_line(x, :columns)
+    if column == @clues[:columns][x]
+      puts "#{x+1} column passes"
+    else
+      forward_column = column.zip(@clues[:columns][x])
+      forward_pass = 0
+      reverse_pass = 0
+      forward_column.each_with_index do |test, i|
+        if test[0] == test[1]
+          forward_pass += 1
+        end
+      end
+      backward_column = column.reverse.zip(@clues[:columns][x])
+      backward_column.each_with_index do |test, i|
+        if test[0] == test[1]
+          reverse_pass += 1
+        end
+      end
+      puts "Column: --> : #{forward_pass}, <-- #{reverse_pass}"
+    end
+
+  end
 end
 
 class GameWindow
@@ -64,22 +148,23 @@ class GameWindow
     @board_window = draw_board_window()
     set_board_window_binds()
     @clues_windows = draw_clues_windows(@board.clues)
-    @clues = draw_clues(@board.clues)
     @blocks = draw_blocks()
     @guide_lines = draw_guide_lines()
-    # Record keeping so lines can be removed
+    # Record keeping
     @marks = {}
     @highlights = []
+    # Clues : {coords: {row|column: #, clue: #} clue: #, text_object: TkcText}
+    @clues_list = draw_clues(@board.clues)
   end
 
   def set_root_keybinds
     # Zoom in and out
     @root.bind('plus', proc do
-      @scale += 5
+      @scale += 1
       update_scale()
     end)
     @root.bind('minus', proc do
-      @scale -= 5
+      @scale -= 1
       update_scale()
     end)
     # HJKL Vim Keybinds
@@ -89,7 +174,7 @@ class GameWindow
       if move_to
         active.selected = false
         move_to.selected = true
-        update_block_view(move_to)
+        update_highlight()
       end
     end)
     @root.bind('j', proc do
@@ -98,7 +183,7 @@ class GameWindow
       if move_to
         active.selected = false
         move_to.selected = true
-        update_block_view(move_to)
+        update_highlight()
       end
     end)
     @root.bind('k', proc do
@@ -107,7 +192,7 @@ class GameWindow
       if move_to
         active.selected = false
         move_to.selected = true
-        update_block_view(move_to)
+        update_highlight()
       end
     end)
     @root.bind('l', proc do
@@ -116,7 +201,7 @@ class GameWindow
       if move_to
         active.selected = false
         move_to.selected = true
-        update_block_view(move_to)
+        update_highlight()
       end
     end)
     @root.bind('c', proc do
@@ -132,11 +217,6 @@ class GameWindow
   end
 
   def set_board_window_binds
-    def floor_to(number, step)
-      whole, _ = number.divmod(step)
-      whole * step
-    end
-
     @board_window.bind('Motion', proc do |x, y|
       x = floor_to(x, @scale)/@scale
       y = floor_to(y, @scale)/@scale
@@ -144,10 +224,9 @@ class GameWindow
       if block
         @board.blocks.select {|b| b.selected == true}.each do |b|
           b.selected = false
-          update_block_view(b)
         end
         block.selected = true
-        update_block_view(block)
+        update_highlight()
       end
     end, "%x %y")
     @board_window.bind('Leave', proc { erase_highlight() })
@@ -160,7 +239,7 @@ class GameWindow
     TkCanvas.new(@root, bg: "#ffffff", height: heightpx, width: widthpx) { grid(row: 1, column: 1) }
   end
 
-  # Init the clues canvas'
+  # Init the 2 clues canvas
   def draw_clues_windows(clues)
     heightpx = @board.height*@scale
     widthpx = @board.width*@scale
@@ -176,21 +255,23 @@ class GameWindow
 
   # Draw the clues
   def draw_clues(clues)
-    clue_list = []
     rows = @clues_windows[:rows]
     columns = @clues_windows[:columns]
+    clue_list = []
     clues[:rows].each_with_index do |row, r|
       row.reverse.each_with_index do |clue, i|
-        clue_list << TkcText.new(rows, rows.width-(((i+1)*@scale)-(@scale/2)),
-                                ((r+1)*@scale)-(@scale/2),
-                                { text: clue })
+        text_object = TkcText.new(rows, rows.width-(((i+1)*@scale)-(@scale/2)),
+                                  ((r+1)*@scale)-(@scale/2),
+                                  { text: clue, tag: "clue"})
+        clue_list << {coords: {row: r, clue: i}, clue: clue.to_i, text_object: text_object}
       end
     end
     clues[:columns].each_with_index do |column, c|
       column.reverse.each_with_index do |clue, i|
-        clue_list << TkcText.new(columns, ((c+1)*@scale)-(@scale/2),
-                                columns.height-(((i+1)*@scale)-(@scale/2)),
-                                { text: clue })
+        text_object = TkcText.new(columns, ((c+1)*@scale)-(@scale/2),
+                                  columns.height-(((i+1)*@scale)-(@scale/2)),
+                                  { text: clue, tag: "clue" })
+        clue_list << {coords: {column: c, clue: i}, clue: clue.to_i, text_object:text_object}
       end
     end
     clue_list
@@ -252,6 +333,7 @@ class GameWindow
 
   # Update the block visual
   def update_block_view(block)
+    @board.test_line(block.coords[:x], block.coords[:y])
     cell = @blocks[block]
     delete_mark(block)
     if block.color != :mark
@@ -272,9 +354,10 @@ class GameWindow
       # Save the lines used for marking so they can be removed
       @marks[block] = mark
     end
-    if block.selected
-      draw_highlight(cell)
-    end
+  end
+
+  def update_highlight
+    draw_highlight(@blocks.find { |b, _| b.selected }[1])
   end
 
   # Given a block, if it is marked, remove the mark
@@ -297,8 +380,8 @@ class GameWindow
     @clues_windows[:rows].width = (@scale*@board.clues[:rows].map { |row| row.length }.max)
     @clues_windows[:columns].height = (@scale*@board.clues[:columns].map { |column| column.length }.max)
     @clues_windows[:columns].width = widthpx
-    @clues.each { |clue| clue.delete() }
-    @clues = draw_clues(@board.clues)
+    @clues_list.each { |clue| clue[:text_object].delete() }
+    @clues_list = draw_clues(@board.clues)
     # Blocks
     @blocks.each do |block, cell|
       x = block.coords[:x]*@scale
@@ -308,7 +391,13 @@ class GameWindow
     # Guide lines
     @guide_lines.each { |line| line.remove }
     @guide_lines = draw_guide_lines()
-    @board.blocks.each { |block| update_block_view(block) }
+    update_highlight()
+  end
+
+  # Floor division helper
+  def floor_to(number, step)
+    whole, _ = number.divmod(step)
+    whole * step
   end
 
 end
