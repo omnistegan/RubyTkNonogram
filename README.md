@@ -5,8 +5,8 @@ Simply pass the .xml as an argument
 
 Currently only supports 2 colour puzzles.
 
-HJKL or Mouse to move
-Right-CLick or 'x' to mark
-Left-Click or 'c' to toggle colours
-'+' to zoom in
-'-' to zoom out
+- HJKL or Mouse to move
+- Right-Click or 'x' to mark
+- Left-Click or 'c' to toggle colours
+- '+' to zoom in
+- '-' to zoom out
