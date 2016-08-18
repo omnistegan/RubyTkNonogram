@@ -28,20 +28,16 @@ class Block
       @color = :mark
     end
   end
-
 end
 
 class Board
   attr_reader(:width, :height, :clues, :colors, :blocks)
-
   # Init the Board
   def initialize(puzzle)
     @width = puzzle[:columns].length
     @height = puzzle[:rows].length
-
     @clues = puzzle.reject { |key,_| ![:rows, :columns].include? key }
     @colors = [:white, :black]
-
     # Init the blocks
     @blocks = blocks_init()
   end
@@ -56,22 +52,22 @@ class Board
     blocks[0].selected = true
     blocks
   end
-
 end
 
 class GameWindow
 
   def initialize(root, board, scale)
-    @root = root
-    set_root_keybinds()
     @scale = scale
     @board = board
+    @root = root
+    set_root_keybinds()
     @board_window = draw_board_window()
     set_board_window_binds()
     @clues_windows = draw_clues_windows(@board.clues)
     @clues = draw_clues(@board.clues)
     @blocks = draw_blocks()
     @guide_lines = draw_guide_lines()
+    # Record keeping so lines can be removed
     @marks = {}
     @highlights = []
   end
@@ -168,7 +164,6 @@ class GameWindow
   def draw_clues_windows(clues)
     heightpx = @board.height*@scale
     widthpx = @board.width*@scale
-
     windows = {}
     windows[:rows] = TkCanvas.new(@root, bg: "#aaaaaa") { grid(:row => 1, :column => 0) }
     windows[:rows].height = heightpx
@@ -198,7 +193,7 @@ class GameWindow
                                 { text: clue })
       end
     end
-  clue_list
+    clue_list
   end
 
   # Draw the blocks on the board
@@ -309,11 +304,11 @@ class GameWindow
       x = block.coords[:x]*@scale
       y = block.coords[:y]*@scale
       cell.coords = [x, y, x+@scale, y+@scale]
-      update_block_view(block)
     end
     # Guide lines
     @guide_lines.each { |line| line.remove }
     @guide_lines = draw_guide_lines()
+    @board.blocks.each { |block| update_block_view(block) }
   end
 
 end
