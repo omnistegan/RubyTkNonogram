@@ -92,49 +92,18 @@ class Board
     score
   end
 
-  def test_line(x, y)
-    row = read_line(y, :rows)
-    if row == @clues[:rows][y]
-      puts "#{y+1} row passes"
-    else
-      forward_row = row.zip(@clues[:rows][y])
-      forward_pass = 0
-      reverse_pass = 0
-      forward_row.each_with_index do |test, i|
-        if test[0] == test[1]
-          forward_pass += 1
-        end
+  def test_puzzle(puzzle)
+    puzzle[:rows].each_with_index do |row,i|
+      if read_line(i, :rows) != row
+        return false
       end
-      backward_row = row.reverse.zip(@clues[:rows][y].reverse)
-      backward_row.each_with_index do |test, i|
-        if test[0] == test[1]
-          reverse_pass += 1
-        end
-      end
-      puts "Row: --> : #{forward_pass}, <-- #{reverse_pass}"
     end
-
-    column = read_line(x, :columns)
-    if column == @clues[:columns][x]
-      puts "#{x+1} column passes"
-    else
-      forward_column = column.zip(@clues[:columns][x])
-      forward_pass = 0
-      reverse_pass = 0
-      forward_column.each_with_index do |test, i|
-        if test[0] == test[1]
-          forward_pass += 1
-        end
+    puzzle[:columns].each_with_index do |column,i|
+      if read_line(i, :columns) != column
+        return false
       end
-      backward_column = column.reverse.zip(@clues[:columns][x])
-      backward_column.each_with_index do |test, i|
-        if test[0] == test[1]
-          reverse_pass += 1
-        end
-      end
-      puts "Column: --> : #{forward_pass}, <-- #{reverse_pass}"
     end
-
+    return true
   end
 end
 
@@ -333,7 +302,10 @@ class GameWindow
 
   # Update the block visual
   def update_block_view(block)
-    @board.test_line(block.coords[:x], block.coords[:y])
+    # test puzzle
+    if @board.test_puzzle(@board.clues)
+      Tk.messageBox( type: 'ok', title: 'Puzzle Complete!', message: 'Puzzle Complete!' )
+    end
     cell = @blocks[block]
     delete_mark(block)
     if block.color != :mark
